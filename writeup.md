@@ -18,8 +18,9 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/test4_binary.jpg "Binary Example"
 [image4]: ./output_images/straight_lines1_warped.jpg "Warp Example"
 [image5]: ./output_images/test3_fitLaneLines.jpg "Fit Visual"
-[image6]: ./output_images/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image6]: ./output_images/test3_output.jpg "Output"
+[video1]: ./project_video_processed.mp4 "Video"
+[video2]: ./challenge_video_processed.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 ###Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -137,9 +138,11 @@ In Section 3 I run the entire pipeline on image "test3.jpg", plotting and loggin
 
 ###Pipeline (video)
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+####1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here is a [link to my processed project video](./project_video_processed.mp4)
+
+And here a [link to my processed challenge video, with identical pipeline](./challenge_video_processed.mp4)
 
 ---
 
