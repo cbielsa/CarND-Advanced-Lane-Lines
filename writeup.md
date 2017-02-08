@@ -17,7 +17,7 @@ The goals / steps of this project are the following:
 [image2]: ./output_images/test4_undistorted.jpg "Road Transformed"
 [image3]: ./output_images/test4_binary.jpg "Binary Example"
 [image4]: ./output_images/straight_lines1_warped.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image5]: ./output_images/test3_fitLaneLines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
@@ -102,13 +102,19 @@ Section 2.5.3. contains the implementation of functions to fit lines to the lane
 
 * Function ´fit_parall_lane_points_and_calc_curvature´ also fits 2nd order polynomials to left and right lane lines, but with the constrain that the curvature of the left lane line has to match the curvature of the right lane line for all values of y, i.e. the function finds the parameters A, B, CL and CR s.t. the quadratic models ´x = A*y^2 + B*y + CL´ (for the left line) and ´x = A*y^2 + B*y + CR´ (for right lane) best approximate input points in a lest-squares sense.
 
-Both methods did really well in the project video. In the challange video, however, ´fit_lane_points_and_calc_curvature´ performed somewhat better, and so I went for ´fit_lane_points_and_calc_curvature´ for the final pipeline. The following image shows points identified as belonging to the left and right lane lines, together with the fits, in warped perspective.
+Both methods did really well in the project video. In the challange video, however, ´fit_lane_points_and_calc_curvature´ performed somewhat better, and so I went for ´fit_lane_points_and_calc_curvature´ for the final pipeline. The following image shows points identified as belonging to the left and right lane lines of "test3.jpg", together with the polynomial fits, in warped perspective.
 
 ![alt text][image5]
 
 ####5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The calculation of the radius of curvature and the xoffset of the vehicle with respect to center is also done in Section 2.5.3 of notebook "CarND-Advanced-Lane-Lines.ipynb", in functions `fit_lane_points_and_calc_curvature` and `fit_parall_lane_points_and_calc_curvature`.
+
+* For the radius of curvature, I first recalculate the 2nd order polynominal fits to the lane lines, but this time in units of meters, as opposed to pixels. For the conversion, I assume that 720 pixels in y direction (the height of the perspective transformation polygon) correspond to 30 meters, and that 630 pixels in x direction (the base of the perspective transformation polygon) correspond to 3.7 meters, which is the minimum width of a US highway lane.
+
+* I then apply the definition of radius of curvature to the 2nd order polynominal fit to each lane line, evaluated at y = number of image rows.
+
+* The vehicle x-offset from lane centre in pixels is given by `0.5*(x_left_lane_at_bottom + x_right_lane_at_bottom) - 0.5*image_width`, which assumes that the camera is mounted on the centre of the car. We then convert the offset to meters with the same conversion as before, nominally 3.7m/630px.
 
 ####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
