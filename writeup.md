@@ -37,13 +37,13 @@ You're reading it!
 
 The code for this step is contained in section "1. Calibrate camera" of IPython notebook "CarND-Advanced-Lane-Lines.ipynb".
 
-* Although the imaged chessboard has 9x6 inside corners, function "cv2.findChessboardCorners" does not find a solution with that many corners for all calibration images. Hence, I define function "findChessboardCornersIter" that first calls "cv2.findChessboardCorners" with 9x6 inside corners and, if no solution is found, starts to decrease the number of corners until a solution is found.
+* Although the imaged chessboard has 9x6 inside corners, function `cv2.findChessboardCorners` does not find a solution with that many corners for all calibration images. Hence, I define function `findChessboardCornersIter` that first calls `cv2.findChessboardCorners` with 9x6 inside corners and, if no solution is found, starts to decrease the number of corners until a solution is found.
 
-* I first test function "findChessboardCornersIter" with "camera_cal/calibration1.jpg".
+* I first test function `findChessboardCornersIter` with "camera_cal/calibration1.jpg".
 
-* For the calibration proper, I define two empty lists imgPoints and objPoints. I then loop over all calibration images and call "findChessboardCornersIter" for each image. If a solution is found, I append the image corners found to imgPoints and the corresponding object points to objPoints. To simplify, I express the object points on a reference frame with XY on the chessboard plane, origin on the top-left corner and where each unit corresponds to the distance between two consecutive chessboard corners. Crucially, note that the number of points in objPoints shall be equal to the number of points in imgPoints for each calibration image, hence most objPoints elements contain 9x6 points, but some contain fewer points.
+* For the calibration proper, I define two empty lists imgPoints and objPoints. I then loop over all calibration images and call `findChessboardCornersIter` for each image. If a solution is found, I append the image corners found to imgPoints and the corresponding object points to objPoints. To simplify, I express the object points on a reference frame with XY on the chessboard plane, origin on the top-left corner and where each unit corresponds to the distance between two consecutive chessboard corners. Crucially, note that the number of points in objPoints shall be equal to the number of points in imgPoints for each calibration image, hence most objPoints elements contain 9x6 points, but some contain fewer points.
 
-* I then compute the camera calibration and distortion coefficients by calling "cv2.calibrateCamera()" on the object and image point lists. I apply this distortion correction to all calibration images and the first test road image. The result of the distortion correction on the first chessboard image is shown below.
+* I then compute the camera calibration and distortion coefficients by calling `cv2.calibrateCamera()` on the object and image point lists. I apply this distortion correction to all calibration images and the first test road image. The result of the distortion correction on the first chessboard image is shown below.
 
 ![alt text][image1]
 
@@ -63,7 +63,7 @@ The code for this step is in sections 2.1 and 2.2 of notebook "CarND-Advanced-La
 
 * In Section 2.2 I implement a variety of color and gradient thresholding functions. After testing the functions on the test images, I settled for function `combined_mask`, which is the one I finally used to process the project and challenge videos. `combined_mask` uses a combination of i) color thresholding in H and S channels followed by gradient magnitude thresolding on the resulting mask, and ii) gradient direction and magnitude thresholding on the L channel of HLS. i) was sufficient to deal with the project video, but ii) was added to satisfactory handle the challenge video as well.
 
-Below I show the binary image that results from applying "combined_mask" to "test4.jpg".
+Below I show the binary image that results from applying `combined_mask` to "test4.jpg".
 
 ![alt text][image3]
 
@@ -86,9 +86,23 @@ The code for my perspective transform is given in section 2.3 of notebook "CarND
 
 ![alt text][image4]
 
+* In section 2.4 I check whether "warp first, then apply binary thresholding" or "apply thresholding first, then warp" results better results. I decide to go with "apply thresholding first, then warp".
+
 ####4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+Section 2.5.2. in the notebook contains the implementation of functions ´find_points_in_lanes_from_prevState´ and ´find_points_in_lanes_from_lostState´ to identify which points in the warped binary image belong to the left and right lane lines.
+
+* Function ´find_points_in_lanes_from_lostState´ process the binary image in isolation from lane line point detection in previous cycles. It starts by estimating lane lines positions at the bottom of the image by searching for the absolute maximum of histograms of 40% bottom of the image at the left and right sides of the middle image column. It then slides a window of 100x100 pixels starting from the estimated lane line positions at the bottom of the image and all the way to the top of the binary image. At each step, the lane line centre is estimated to be located at the weighted average of the section of the histogram inside the window.
+
+* Function ´find_points_in_lanes_from_prevState´ process the binary image starting from an initial estimate of the lane line x-position for each y-value. That information is kept in an object of class Lane, defined in Section 2.5.1 of the notebook. For each row of pixels, I search for points in the binary image in x-intervals of 100 pixels centred at the x-location of each lane stored in the object Lane.
+
+Section 2.5.3. contains the implementation of functions to fit lines to the lane line points. I have implemented two different methods.
+
+* Function ´fit_lane_points_and_calc_curvature´ fits a 2nd order polynominal f(y) = A*y^2 + B*y + C to each lane line with function ´np.polyfit´. Note that in this method the 2nd order polynomial for the left and the right lane lines are calculated independently of each other, hence lane lines may have different curvatures, i.e. be non parallel.
+
+* Function ´fit_parall_lane_points_and_calc_curvature´ also fits 2nd order polynomials to left and right lane lines, but with the constrain that the curvature of the left lane line has to match the curvature of the right lane line for all values of y, i.e. the function finds the parameters A, B, CL and CR s.t. the quadratic models ´x = A*y^2 + B*y + CL´ (for the left line) and ´x = A*y^2 + B*y + CR´ (for right lane) best approximate input points in a lest-squares sense.
+
+Both methods did really well in the project video. In the challange video, however, ´fit_lane_points_and_calc_curvature´ performed somewhat better, and so I went for ´fit_lane_points_and_calc_curvature´ for the final pipeline. The following image shows points identified as belonging to the left and right lane lines, together with the fits, in warped perspective.
 
 ![alt text][image5]
 
