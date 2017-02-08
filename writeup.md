@@ -140,7 +140,7 @@ In Section 3 I run the entire pipeline on image "test3.jpg", plotting and loggin
 
 ####1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here is a [link to my processed project video](./project_video_processed.mp4)
+Here is a [link to my processed project video](./project_video_processed.mp4). The video is also available [in youtube](https://www.youtube.com/watch?v=xcgHLMjOHIA).
 
 And here a [link to my processed challenge video, with identical pipeline](./challenge_video_processed.mp4)
 
@@ -150,5 +150,19 @@ And here a [link to my processed challenge video, with identical pipeline](./cha
 
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The different methods considered for the various pipeline stages have been described in quite detail above.
+But to sum up:
+* I calibrated the camera with chessboard images, implementing a function able to find a different number of inside chessboard corners on each calibration image.
+* I explored different color spaces and channels. In the end I used HSV color thresholding as well as gradient magnitude and direction thresholding to convert undistored RGB images into thresholded binary images.
+* I defined a perspective transform from camera to birds-eye view.
+* I implemented an algorithm based on histograms in sliding windows to identify points of the binary image belong to the left and right lane lines.
+* I implemented two methods to fit curves to the detected lane line points: one constraining the lane lines to be parallel to each other, and the othe without the constraint. I used the latter in the final pipeline. I also estimated radius of curvature and vehicle positon offset from the curve fits.
+* To improve stability, I implemented a filter to the estimation pipeline. I also introduced two estimating modes: from valid state, and from lost state. I defined a timeout of 10 cycles after which the estimator transitions to estimation from lost state.
+
+The pipeline does an excellent job in the project video. It also does a decent --albeit imperfect job in the challenge video.
+
+In the harder challenge video, however, the performance is unsatisfactory. The main reason is that the road in that video contains several very sharp curves for which the pipeline has not been tuned. However, I believe that by adding a few extra features to the presented pipeline, the algorithm could also do a decent job on the most challenging video. In particular, I propose the following additions:
+* The current pipeline doesn't explicitly apply a region mask to the image, since the perspective transform already applies a masking implicitly. However, for the pipeline to be able to deal with both straight and sharply curvy road stretchs, a region mask should be added to the algorithm, and the geometry of the mask shall be changed based on the lane detection in previous circles (e.g. "focusing" on short distances on curvy stretches but using also pixels farther away in straight flat stretches).
+* The reason why in the challenge video the detected lane sometimes shows some inexistent bending to the left is that the algorithm of detection of lane points sometimes misses a significant portion of the left lane line. The same binary tresholding tuning that worked excellently for the project video did not work as well with the challenge video. Obviously, there is room for improvement in the binary thresholding and lane line point detection stages of the pipeline.
+* Finally, deep learning could be used in the problem of lane detection. Clearly, a neural network can be trained to estimate radius of curvatures and position offsets from raw videos (the labels simply inferred from human driver actions). Collecting data to train a neural network to identify the entire lane region is somewhat more complicated, but it can still be done. Car position estimations (from GPS, IMUs, etc.), together with an assumption for lane width are enough to provide the lane regions as labels to the neural network. Undoubtedly, a NN could be trained to achieve performances superior to those of computer vision algorithms tuned by humans in roads and visibility conditions never before experienced.
 
