@@ -93,7 +93,7 @@ The code for my perspective transform is given in section 2.3 of notebook "CarND
 
 Section 2.5.2. in the notebook contains the implementation of functions ´find_points_in_lanes_from_prevState´ and ´find_points_in_lanes_from_lostState´ to identify which points in the warped binary image belong to the left and right lane lines.
 
-* Function ´find_points_in_lanes_from_lostState´ process the binary image in isolation from lane line point detection in previous cycles. It starts by estimating lane lines positions at the bottom of the image by searching for the absolute maximum of histograms of 40% bottom of the image at the left and right sides of the middle image column. It then slides a window of 100x100 pixels starting from the estimated lane line positions at the bottom of the image and all the way to the top of the binary image. At each step, the lane line centre is estimated to be located at the weighted average of the section of the histogram inside the window.
+* Function ´find_points_in_lanes_from_lostState´ process the binary image in isolation from lane line point detection in previous cycles. It starts by estimating lane lines positions at the bottom of the image by searching for the absolute maximum of histograms of 40% bottom of the image at the left and right sides of the middle image column. It then slides a window of 100x100 pixels starting from the estimated lane line positions at the bottom of the image and all the way to the top of the binary image. At each step, the lane line centre is estimated to be located at the weighted average of the section of the histogram inside the window. I implemented an alternative method that estimated the line centred as the absolute maximum of the histogram, but weighted average resulted in better estimations.
 
 * Function ´find_points_in_lanes_from_prevState´ process the binary image starting from an initial estimate of the lane line x-position for each y-value. That information is kept in an object of class Lane, defined in Section 2.5.1 of the notebook. For each row of pixels, I search for points in the binary image in x-intervals of 100 pixels centred at the x-location of each lane stored in the object Lane.
 
@@ -139,6 +139,8 @@ In Section 3 I run the entire pipeline on image "test3.jpg", plotting and loggin
 ###Pipeline (video)
 
 ####1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+
+Video processing is done in Section 4 of the notebook.
 
 Here is a [link to my processed project video](./project_video_processed.mp4). The video is also available [in youtube](https://www.youtube.com/watch?v=xcgHLMjOHIA).
 
