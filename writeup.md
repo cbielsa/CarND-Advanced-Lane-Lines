@@ -14,8 +14,8 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./output_images/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
+[image2]: ./output_images/test4_undistorted.jpg "Road Transformed"
+[image3]: ./examples/test4_binary.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
@@ -51,10 +51,19 @@ The code for this step is contained in section "1. Calibrate camera" of IPython 
 ###Pipeline (single images)
 
 ####1. Provide an example of a distortion-corrected image.
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+
+Below, I display the result of applying distortion correction to road test image "test4.jpg".
 ![alt text][image2]
+
 ####2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+
+The code for this step is in sections 2.1 and 2.2 of notebook "CarND-Advanced-Lane-Lines.ipynb".
+
+* In Section 2.1 I explore a variety of color spaces and channels on all the test images. From the grid of images displayed on the notebook, it is apparent that the S channel of the HLS space is the best to discriminate between lane lines and asphalt. The S channel of the HVS color space does a much poorer job. Low intensities in the H channel of the HLS space also correlate well with lane lines.
+
+* In Section 2.2 I implement a variety of color and gradient thresholding functions. After testing the functions on the test images, I settled for function "combined_mask", which is the one I finally used to process the project and challenge videos. "combined_mask" uses a combination of i) color thresholding in H and S channels followed by gradient magnitude thresolding on the resulting mask, and ii) gradient direction and magnitude thresholding on the L channel of HLS. i) was sufficient to deal with the project video, but ii) was added to satisfactory handle the challenge video as well.
+
+Below I show the binary image that results from applying"combined_mask" to "test4.jpg".
 
 ![alt text][image3]
 
