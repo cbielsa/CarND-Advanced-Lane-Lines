@@ -15,8 +15,8 @@ The goals / steps of this project are the following:
 
 [image1]: ./output_images/undistort_output.png "Undistorted"
 [image2]: ./output_images/test4_undistorted.jpg "Road Transformed"
-[image3]: ./examples/test4_binary.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
+[image3]: ./output_images/test4_binary.jpg "Binary Example"
+[image4]: ./output_images/straight_lines1_warped.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
@@ -61,39 +61,28 @@ The code for this step is in sections 2.1 and 2.2 of notebook "CarND-Advanced-La
 
 * In Section 2.1 I explore a variety of color spaces and channels on all the test images. From the grid of images displayed on the notebook, it is apparent that the S channel of the HLS space is the best to discriminate between lane lines and asphalt. The S channel of the HVS color space does a much poorer job. Low intensities in the H channel of the HLS space also correlate well with lane lines.
 
-* In Section 2.2 I implement a variety of color and gradient thresholding functions. After testing the functions on the test images, I settled for function "combined_mask", which is the one I finally used to process the project and challenge videos. "combined_mask" uses a combination of i) color thresholding in H and S channels followed by gradient magnitude thresolding on the resulting mask, and ii) gradient direction and magnitude thresholding on the L channel of HLS. i) was sufficient to deal with the project video, but ii) was added to satisfactory handle the challenge video as well.
+* In Section 2.2 I implement a variety of color and gradient thresholding functions. After testing the functions on the test images, I settled for function `combined_mask`, which is the one I finally used to process the project and challenge videos. `combined_mask` uses a combination of i) color thresholding in H and S channels followed by gradient magnitude thresolding on the resulting mask, and ii) gradient direction and magnitude thresholding on the L channel of HLS. i) was sufficient to deal with the project video, but ii) was added to satisfactory handle the challenge video as well.
 
-Below I show the binary image that results from applying"combined_mask" to "test4.jpg".
+Below I show the binary image that results from applying "combined_mask" to "test4.jpg".
 
 ![alt text][image3]
 
 ####3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform is given in section 2.3 of notebook "CarND-Advanced-Lane-Lines.ipynb".
 
-```
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
-
-```
-This resulted in the following source and destination points:
+* I manually select two points on each line lane of "straight_lines1.jpg" (source points `src`), and map them to a rectangle of base image_width/2 and height image_height (destination points `dst`), resulting in the following coordinates for the source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 577,  460      | 320, 0       | 
+| 196,  720      | 320, 720     |
+| 1127, 720      | 960, 720     |
+| 705,  460      | 960, 0       |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+* I then use `cv2.getPerspectiveTransform(src, dst)` to calculate the transformation matrix from camera to "birds-eye" perspective, and `cv2.getPerspectiveTransform(dst, src)` to calculate the inverse transformation.
+
+* To validate the perspective transform, I warp image "straight_lines1.jpg" with `cv2.warpPerspective` and the transformation matrix calcualted before, and draw the `src`and `dst` points onto the original undistored image and its warped counterpact to verify that the lines appear parallel in the warpred image. I repeat the step for the other straight line test images. Below, I copy the output of this step applied to "straight_lines1.jpg".
 
 ![alt text][image4]
 
