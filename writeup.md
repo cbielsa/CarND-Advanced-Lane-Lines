@@ -18,7 +18,7 @@ The goals / steps of this project are the following:
 [image3]: ./output_images/test4_binary.jpg "Binary Example"
 [image4]: ./output_images/straight_lines1_warped.jpg "Warp Example"
 [image5]: ./output_images/test3_fitLaneLines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image6]: ./output_images/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -116,9 +116,20 @@ The calculation of the radius of curvature and the xoffset of the vehicle with r
 
 * The vehicle x-offset from lane centre in pixels is given by `0.5*(x_left_lane_at_bottom + x_right_lane_at_bottom) - 0.5*image_width`, which assumes that the camera is mounted on the centre of the car. We then convert the offset to meters with the same conversion as before, nominally 3.7m/630px.
 
+* For the final pipeline used for video processing, I use a more sofisticated function `calc_curvAndOffset_and_sanityChecks`. This function is defined in Section 2.5.4. The function performs sanity checks on lane width and radius of curvature, and also compares values estimated from the present image to estimations based on previous image frames. If estimates are deemed valid, it then updates the state of object Lane with a filter that gives weight 0.2 to the current estimation and 0.8 to former estimations.
+
+            
 ####6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+* Function `plot_lanes` implemented in Section 2.5.5 of the notebook unwarps the fits curves and colors on the original (undistorted) image the detected lane region in green.
+
+* Next, function `process_image_isolated` in Section 2.5.6 defines the complete pipeline all the way from raw image to calculation and plotting of lane region and radius and curvature and offset values. But it does it by processing images in isolation.
+
+* Function `process_image` in Section 2.5.6 defines the complete pipeline from raw image to lane region, curvature and offset, but does it taking into account previous estimations, with the Lane object state being stored after each cycle in variable `process_image.lane`. Note that after each processing cycle, the estimator can contain a valid estimate or be in "lost state". In particular, after 10 processing cycles (the tunning of parameter `numCyclesLostForRestart`) without producing a valid estimation, the estimator transitions to "lost state" and in the following cycle attempts a lane estimation without relying on previous estimates.
+
+* Finally, function `process_image_for_video` also in Section 2.5.6 simply calls `process_image` and then adds the text with the radius of curvature and offset information to the processed image. This is the highest level function, which is called to process every video frame.
+
+In Section 3 I run the entire pipeline on image "test3.jpg", plotting and logging the outcome of all intermediate steps. The final image with lane region, radius of curvature and position offset annotations, is shown below.
 
 ![alt text][image6]
 
